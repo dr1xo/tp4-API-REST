@@ -1,5 +1,5 @@
-# Imagen oficial de Node.js
-FROM node:20-alpine
+# Imagen oficial de Node.js compatible con pnpm 11.5.0
+FROM node:24-alpine
 
 # Directorio de trabajo dentro del contenedor
 WORKDIR /app
@@ -11,12 +11,13 @@ RUN corepack enable && corepack prepare pnpm@11.5.0 --activate
 COPY package.json pnpm-lock.yaml ./
 
 # Instalamos dependencias, incluyendo devDependencies porque usamos ts-node
-RUN HUSKY=0 pnpm install --frozen-lockfile
+# HUSKY=0 evita que husky intente ejecutar hooks dentro del contenedor
+RUN HUSKY=0 pnpm install --frozen-lockfile --prod=false
 
 # Copiamos el resto del proyecto
 COPY . .
 
-# Puerto usado por la app en local
+# Puerto usado por la app
 EXPOSE 3000
 
 # Comando para iniciar la aplicación
