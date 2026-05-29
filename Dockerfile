@@ -11,13 +11,13 @@ RUN corepack enable && corepack prepare pnpm@11.5.0 --activate
 COPY package.json pnpm-lock.yaml ./
 
 # Instalamos dependencias, incluyendo devDependencies porque usamos ts-node
-RUN pnpm install --frozen-lockfile --prod=false
+RUN HUSKY=0 pnpm install --frozen-lockfile
 
 # Copiamos el resto del proyecto
 COPY . .
 
 # Puerto usado por la app en local
-EXPOSE 3001
+EXPOSE 3000
 
 # Comando para iniciar la aplicación
 CMD ["pnpm", "start"]
