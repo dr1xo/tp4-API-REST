@@ -5,7 +5,8 @@ require('dotenv').config()
 class Server {
   constructor () {
     this.app = express()
-    this.port = process.env.PORT || 3001
+    this.port = process.env.PORT || 3000
+
     this.middleware()
     this.rutas()
   }
@@ -17,6 +18,7 @@ class Server {
 
   rutas () {
     this.app.use('/alumnos', require('../routes/alumno.routes'))
+
     /*
     this.app.use('/materias', require('../routes/extra/materia.routes'))
     this.app.use('/notas', require('../routes/extra/nota.routes'))
@@ -25,17 +27,19 @@ class Server {
 
     // manejo de errores
     this.app.use((req, res) => {
-  return res.status(404).json({
-    msg: 'Error. Pagina no encontrada'
-  })
-})
+      return res.status(404).json({
+        msg: 'Error. Pagina no encontrada'
+      })
+    })
   }
 
   listen () {
-    this.app.listen(this.port, () => {
-      console.log(`La API esta escuchando el el puerto: ${this.port}`)
+    this.app.listen(this.port, '0.0.0.0', () => {
+      console.log(`La API esta escuchando en el puerto: ${this.port}`)
     })
   }
 }
+
+module.exports = Server
 
 module.exports = Server

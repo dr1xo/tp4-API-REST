@@ -1,23 +1,23 @@
-# Usamos una imagen oficial de Node.js
-FROM node:18
+# Imagen oficial de Node.js
+FROM node:20-alpine
 
-# Creamos y establecemos el directorio de trabajo dentro del contenedor
+# Directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Instalamos pnpm globalmente en el contenedor para poder leer el lockfile
-RUN npm install -g pnpm
+# Activamos pnpm con Corepack
+RUN corepack enable && corepack prepare pnpm@11.5.0 --activate
 
-# Copiamos primero solo los archivos de dependencias
+# Copiamos archivos de dependencias
 COPY package.json pnpm-lock.yaml ./
 
-# Instalamos las dependencias usando pnpm
-RUN pnpm install
+# Instalamos dependencias, incluyendo devDependencies porque usamos ts-node
+RUN pnpm install --frozen-lockfile --prod=false
 
-# Copiamos el resto del código del proyecto al contenedor
+# Copiamos el resto del proyecto
 COPY . .
 
-# Exponemos el puerto que usa Express
-EXPOSE 3000
+# Puerto usado por la app en local
+EXPOSE 3001
 
-# Comando por defecto para iniciar la aplicación en producción
+# Comando para iniciar la aplicación
 CMD ["pnpm", "start"]
