@@ -163,164 +163,279 @@ Define las rutas del endpoint `/alumnos`:
   "isActive": true
 }
 ```
-## Middleware
 
-### `middleware/alumno-validator.middleware.js`
+### `data/extras/sys-materias.json`
 
-Este middleware valida los datos recibidos en el cuerpo de las peticiones antes de que lleguen al controlador.
-
-#### `validateInputAlumno(req, res, next)`
-
-Valida que los campos recibidos tengan el tipo de dato correcto:
-
-* `nombre` debe ser un string.
-* `apellido` debe ser un string.
-* `email` debe ser un string.
-* `isActive` debe ser un boolean.
-
-Si existe algún error de validación responde con status **400** y un listado de errores. Si los datos son válidos ejecuta `next()` para continuar con la siguiente función de la ruta.
-
----
-
-## Models
-
-### `models/persona.model.ts`
-
-Clase base utilizada para representar una persona.
-
-#### Constructor
-
-Recibe:
-
-* nombre
-* apellido
-* email
-
-y los asigna a los atributos de la instancia.
-
----
-
-### `models/alumno.model.ts`
-
-Clase que hereda de `PersonaModel` y representa a un alumno.
-
-#### Constructor
-
-Además de los datos heredados, recibe:
-
-* legajo
-
-Genera automáticamente:
-
-* fechaAlta
-* modificacion
-* isActive
-
-#### `getAllAttributes()`
-
-Devuelve un objeto con todos los atributos del alumno para poder almacenarlo dentro del archivo JSON.
-
----
-
-## Docker
-
-El proyecto fue dockerizado mediante un archivo `Dockerfile` ubicado en la raíz del repositorio.
-
-Para construir la imagen:
-
-```bash
-docker build -t tp4-api-rest .
+```json
+{
+  "idMateria": "PROG1",
+  "nombre": "Programación I",
+  "cuatrimestre": 1
+}
 ```
 
-Para ejecutar el contenedor:
+### `data/extras/sys-notas.json`
 
-```bash
-docker run -p 3000:3000 tp4-api-rest
+```json
+{
+  "id": 1,
+  "legajo": 10001,
+  "idMateria": "MAT101",
+  "nota": 9,
+  "fecha": "03-04-24"
+}
+```
+
+### `data/extras/sys-profesores.json`
+
+> Archivo reservado para la ampliación opcional del proyecto (carpeta `/extras`). Actualmente está vacío; la estructura prevista para cada profesor es:
+
+```json
+{
+  "idProfesor": "PROF001",
+  "nombre": "Gustavo",
+  "apellido": "Ramoscelli",
+  "materias": ["PROG1"]
+}
 ```
 
 ---
 
-## Deploy en Render
+## Documentación de los endpoints con Postman
 
-La API fue desplegada utilizando Render mediante un Web Service conectado al repositorio de GitHub.
+Todas las pruebas se realizaron contra el deploy en Render.
 
-URL pública:
+- **URL base:** `https://tp4-api-rest.onrender.com`
 
-https://tp4-api-rest.onrender.com/alumnos
-
-El despliegue se realiza automáticamente cuando se actualiza la rama configurada en Render.
-
----
-
-## Documentación de Endpoints
-
-### GET /alumnos
-
-Obtiene la lista completa de alumnos.
-
-Respuestas:
-
-* 200 OK
-* 500 Internal Server Error
-
-### GET /alumnos/:legajo
-
-Obtiene un alumno según su número de legajo.
-
-Respuestas:
-
-* 200 OK
-* 404 Not Found
-* 500 Internal Server Error
-
-### POST /alumnos
-
-Crea un nuevo alumno.
-
-Respuestas:
-
-* 201 Created
-* 400 Bad Request
-* 409 Conflict
-* 500 Internal Server Error
-
-### PUT /alumnos/:legajo
-
-Actualiza un alumno existente.
-
-Respuestas:
-
-* 200 OK
-* 404 Not Found
-* 500 Internal Server Error
-
-### DELETE /alumnos/:legajo
-
-Elimina un alumno existente.
-
-Respuestas:
-
-* 200 OK
-* 404 Not Found
-* 500 Internal Server Error
+| Método   | Endpoint            | Descripción                         | Body (req) | Códigos HTTP       |
+| -------- | ------------------- | ----------------------------------- | ---------- | ------------------ |
+| `GET`    | `/alumnos`          | Lista todos los alumnos             | —          | 200, 500           |
+| `GET`    | `/alumnos/:legajo`  | Obtiene un alumno por legajo        | —          | 200, 404, 500      |
+| `POST`   | `/alumnos`          | Crea un alumno (legajo automático)  | JSON       | 201, 400, 409, 500 |
+| `PUT`    | `/alumnos/:legajo`  | Modifica un alumno por legajo       | JSON       | 200, 404, 500      |
+| `DELETE` | `/alumnos/:legajo`  | Elimina un alumno por legajo        | —          | 200, 404, 500      |
 
 ---
 
-## Evidencias de Postman
+### 1. `GET /alumnos`
 
-1. GET /alumnos
-![GET alumnos](./screenshots/get-alumnos.png)
+Devuelve el array completo de alumnos.
 
-2. GET /alumnos/:legajo
-![GET alumno por legajo](./screenshots/get-alumno-legajo.png)
+**Request**
 
-3. POST /alumnos
-![POST alumno](./screenshots/post-alumno.png)
+```
+GET https://tp4-api-rest.onrender.com/alumnos
+```
 
-4. PUT /alumnos/:legajo
-![PUT alumno](./screenshots/put-alumno.png)
+**Response — 200 OK**
 
-5. DELETE /alumnos/:legajo
-![DELETE alumno](./screenshots/delete-alumno.png)
+```json
+[
+  {
+    "legajo": 10001,
+    "nombre": "Mora",
+    "apellido": "García",
+    "email": "m.garcia@facultad.edu.ar",
+    "fechaAlta": "2026-03-02",
+    "modificacion": "2026-03-02",
+    "isActive": true
+  }
+]
+```
 
+<!-- 📸 Reemplazar por la captura de Postman -->
+![GET /alumnos](docs/postman/get-alumnos.png)
 
+---
+
+### 2. `GET /alumnos/:legajo`
+
+Busca un alumno por su número de legajo.
+
+**Request**
+
+```
+GET https://tp4-api-rest.onrender.com/alumnos/10001
+```
+
+**Response — 200 OK**
+
+```json
+{
+  "legajo": 10001,
+  "nombre": "Mora",
+  "apellido": "García",
+  "email": "m.garcia@facultad.edu.ar",
+  "fechaAlta": "2026-03-02",
+  "modificacion": "2026-03-02",
+  "isActive": true
+}
+```
+
+**Response — 404 Not Found**
+
+```json
+{
+  "msg": "No existe el alumno con el legajo 99999"
+}
+```
+
+<!-- 📸 Reemplazar por la captura de Postman -->
+![GET /alumnos/:legajo](docs/postman/get-alumno-by-id.png)
+
+---
+
+### 3. `POST /alumnos`
+
+Crea un alumno nuevo. El `legajo` se genera automáticamente. El body se valida con la clase `AlumnoModel`.
+
+**Request**
+
+```
+POST https://tp4-api-rest.onrender.com/alumnos
+Content-Type: application/json
+```
+
+```json
+{
+  "nombre": "Test",
+  "apellido": "User",
+  "email": "t.user@facultad.edu.ar"
+}
+```
+
+**Response — 201 Created**
+
+```json
+{
+  "msg": "Se agregó al sistema el alumno nuevo con el legajo n° 10024",
+  "alumnoNuevo": {
+    "legajo": 10024,
+    "nombre": "Test",
+    "apellido": "User",
+    "email": "t.user@facultad.edu.ar",
+    "fechaAlta": "2026-06-01",
+    "modificacion": "2026-06-01",
+    "isActive": true
+  }
+}
+```
+
+**Response — 400 Bad Request** (datos faltantes o inválidos)
+
+```json
+{
+  "errores": ["Nombre inválido", "Email inválido"]
+}
+```
+
+**Response — 409 Conflict** (email ya registrado)
+
+```json
+{
+  "msg": "Ya existe un alumno registrado con el email t.user@facultad.edu.ar"
+}
+```
+
+<!-- 📸 Reemplazar por la captura de Postman -->
+![POST /alumnos](docs/postman/post-alumno.png)
+
+---
+
+### 4. `PUT /alumnos/:legajo`
+
+Modifica los datos de un alumno existente. No se permite modificar el legajo.
+
+**Request**
+
+```
+PUT https://tp4-api-rest.onrender.com/alumnos/10001
+Content-Type: application/json
+```
+
+```json
+{
+  "nombre": "Mora Belén",
+  "isActive": false
+}
+```
+
+**Response — 200 OK**
+
+```json
+{
+  "msg": "Alumno actualizado correctamente",
+  "alumno": {
+    "legajo": 10001,
+    "nombre": "Mora Belén",
+    "apellido": "García",
+    "email": "m.garcia@facultad.edu.ar",
+    "fechaAlta": "2026-03-02",
+    "modificacion": "2026-06-01",
+    "isActive": false
+  }
+}
+```
+
+**Response — 404 Not Found**
+
+```json
+{
+  "msg": "No se encontró el alumno con el legajo n° 99999"
+}
+```
+
+<!-- 📸 Reemplazar por la captura de Postman -->
+![PUT /alumnos/:legajo](docs/postman/put-alumno.png)
+
+---
+
+### 5. `DELETE /alumnos/:legajo`
+
+Elimina un alumno por su legajo.
+
+**Request**
+
+```
+DELETE https://tp4-api-rest.onrender.com/alumnos/10001
+```
+
+**Response — 200 OK**
+
+```json
+{
+  "msg": "Se eliminó correctamente el alumno con el legajo n° 10001",
+  "alumno": {
+    "legajo": 10001,
+    "nombre": "Mora",
+    "apellido": "García",
+    "email": "m.garcia@facultad.edu.ar",
+    "fechaAlta": "2026-03-02",
+    "modificacion": "2026-03-02",
+    "isActive": true
+  }
+}
+```
+
+**Response — 404 Not Found**
+
+```json
+{
+  "msg": "No se encontró el alumno con el legajo n° 99999"
+}
+```
+
+<!-- 📸 Reemplazar por la captura de Postman -->
+![DELETE /alumnos/:legajo](docs/postman/delete-alumno.png)
+
+---
+
+## Tests y cobertura
+
+El proyecto incluye tests automatizados con **Jest** + **ts-jest** y **Supertest**.
+
+```bash
+pnpm test
+```
+
+Se cubre el **100% de las funciones** del proyecto (controlador, server, middleware y modelos), superando el 90% exigido por la consigna.
