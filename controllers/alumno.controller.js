@@ -90,6 +90,13 @@ const postNewAlumno = async (req, res) => {
 
 const putAlumnoBylegajo = async (req, res) => {
   try {
+
+      if (req.body.legajo) {
+        return res.status(400).json({
+          msg: 'No se puede modificar el legajo del alumno'
+        })
+      }
+      
     const { legajo } = req.params
     const { nombre, apellido, email, isActive } = req.body
 
