@@ -163,3 +163,164 @@ Define las rutas del endpoint `/alumnos`:
   "isActive": true
 }
 ```
+## Middleware
+
+### `middleware/alumno-validator.middleware.js`
+
+Este middleware valida los datos recibidos en el cuerpo de las peticiones antes de que lleguen al controlador.
+
+#### `validateInputAlumno(req, res, next)`
+
+Valida que los campos recibidos tengan el tipo de dato correcto:
+
+* `nombre` debe ser un string.
+* `apellido` debe ser un string.
+* `email` debe ser un string.
+* `isActive` debe ser un boolean.
+
+Si existe algún error de validación responde con status **400** y un listado de errores. Si los datos son válidos ejecuta `next()` para continuar con la siguiente función de la ruta.
+
+---
+
+## Models
+
+### `models/persona.model.ts`
+
+Clase base utilizada para representar una persona.
+
+#### Constructor
+
+Recibe:
+
+* nombre
+* apellido
+* email
+
+y los asigna a los atributos de la instancia.
+
+---
+
+### `models/alumno.model.ts`
+
+Clase que hereda de `PersonaModel` y representa a un alumno.
+
+#### Constructor
+
+Además de los datos heredados, recibe:
+
+* legajo
+
+Genera automáticamente:
+
+* fechaAlta
+* modificacion
+* isActive
+
+#### `getAllAttributes()`
+
+Devuelve un objeto con todos los atributos del alumno para poder almacenarlo dentro del archivo JSON.
+
+---
+
+## Docker
+
+El proyecto fue dockerizado mediante un archivo `Dockerfile` ubicado en la raíz del repositorio.
+
+Para construir la imagen:
+
+```bash
+docker build -t tp4-api-rest .
+```
+
+Para ejecutar el contenedor:
+
+```bash
+docker run -p 3000:3000 tp4-api-rest
+```
+
+---
+
+## Deploy en Render
+
+La API fue desplegada utilizando Render mediante un Web Service conectado al repositorio de GitHub.
+
+URL pública:
+
+https://tp4-api-rest.onrender.com/alumnos
+
+El despliegue se realiza automáticamente cuando se actualiza la rama configurada en Render.
+
+---
+
+## Documentación de Endpoints
+
+### GET /alumnos
+
+Obtiene la lista completa de alumnos.
+
+Respuestas:
+
+* 200 OK
+* 500 Internal Server Error
+
+### GET /alumnos/:legajo
+
+Obtiene un alumno según su número de legajo.
+
+Respuestas:
+
+* 200 OK
+* 404 Not Found
+* 500 Internal Server Error
+
+### POST /alumnos
+
+Crea un nuevo alumno.
+
+Respuestas:
+
+* 201 Created
+* 400 Bad Request
+* 409 Conflict
+* 500 Internal Server Error
+
+### PUT /alumnos/:legajo
+
+Actualiza un alumno existente.
+
+Respuestas:
+
+* 200 OK
+* 404 Not Found
+* 500 Internal Server Error
+
+### DELETE /alumnos/:legajo
+
+Elimina un alumno existente.
+
+Respuestas:
+
+* 200 OK
+* 404 Not Found
+* 500 Internal Server Error
+
+---
+
+## Evidencias de Postman
+
+1. GET /alumnos
+![GET alumnos](./screenshots/get-alumnos.png)
+
+2. GET /alumnos/:legajo
+![GET alumno por legajo](./screenshots/get-alumno-legajo.png)
+
+3. POST /alumnos
+![POST alumno](./screenshots/post-alumno.png)
+
+4. PUT /alumnos/:legajo
+![PUT alumno](./screenshots/put-alumno.png)
+
+5. DELETE /alumnos/:legajo
+![DELETE alumno](./screenshots/delete-alumno.png)
+
+
