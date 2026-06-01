@@ -1,7 +1,7 @@
 {
-  "name": "tp3",
+  "name": "tp4-api-rest",
   "version": "1.0.0",
-  "description": "grupo0",
+  "description": "API REST de alumnos (CRUD) - Programación III - Grupo 12",
   "main": "app.js",
   "scripts": {
     "test": "jest",
