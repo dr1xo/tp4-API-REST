@@ -163,3 +163,279 @@ Define las rutas del endpoint `/alumnos`:
   "isActive": true
 }
 ```
+
+### `data/extras/sys-materias.json`
+
+```json
+{
+  "idMateria": "PROG1",
+  "nombre": "Programación I",
+  "cuatrimestre": 1
+}
+```
+
+### `data/extras/sys-notas.json`
+
+```json
+{
+  "id": 1,
+  "legajo": 10001,
+  "idMateria": "MAT101",
+  "nota": 9,
+  "fecha": "03-04-24"
+}
+```
+
+### `data/extras/sys-profesores.json`
+
+> Archivo reservado para la ampliación opcional del proyecto (carpeta `/extras`). Actualmente está vacío; la estructura prevista para cada profesor es:
+
+```json
+{
+  "idProfesor": "PROF001",
+  "nombre": "Gustavo",
+  "apellido": "Ramoscelli",
+  "materias": ["PROG1"]
+}
+```
+
+---
+
+## Documentación de los endpoints con Postman
+
+Todas las pruebas se realizaron contra el deploy en Render.
+
+- **URL base:** `https://tp4-api-rest.onrender.com`
+
+| Método   | Endpoint            | Descripción                         | Body (req) | Códigos HTTP       |
+| -------- | ------------------- | ----------------------------------- | ---------- | ------------------ |
+| `GET`    | `/alumnos`          | Lista todos los alumnos             | —          | 200, 500           |
+| `GET`    | `/alumnos/:legajo`  | Obtiene un alumno por legajo        | —          | 200, 404, 500      |
+| `POST`   | `/alumnos`          | Crea un alumno (legajo automático)  | JSON       | 201, 400, 409, 500 |
+| `PUT`    | `/alumnos/:legajo`  | Modifica un alumno por legajo       | JSON       | 200, 404, 500      |
+| `DELETE` | `/alumnos/:legajo`  | Elimina un alumno por legajo        | —          | 200, 404, 500      |
+
+---
+
+### 1. `GET /alumnos`
+
+Devuelve el array completo de alumnos.
+
+**Request**
+
+```
+GET https://tp4-api-rest.onrender.com/alumnos
+```
+
+**Response — 200 OK**
+
+```json
+[
+  {
+    "legajo": 10001,
+    "nombre": "Mora",
+    "apellido": "García",
+    "email": "m.garcia@facultad.edu.ar",
+    "fechaAlta": "2026-03-02",
+    "modificacion": "2026-03-02",
+    "isActive": true
+  }
+]
+```
+
+<!-- 📸 Reemplazar por la captura de Postman -->
+![GET /alumnos](docs/postman/get-alumnos.png)
+
+---
+
+### 2. `GET /alumnos/:legajo`
+
+Busca un alumno por su número de legajo.
+
+**Request**
+
+```
+GET https://tp4-api-rest.onrender.com/alumnos/10001
+```
+
+**Response — 200 OK**
+
+```json
+{
+  "legajo": 10001,
+  "nombre": "Mora",
+  "apellido": "García",
+  "email": "m.garcia@facultad.edu.ar",
+  "fechaAlta": "2026-03-02",
+  "modificacion": "2026-03-02",
+  "isActive": true
+}
+```
+
+**Response — 404 Not Found**
+
+```json
+{
+  "msg": "No existe el alumno con el legajo 99999"
+}
+```
+
+<!-- 📸 Reemplazar por la captura de Postman -->
+![GET /alumnos/:legajo](docs/postman/get-alumno-by-id.png)
+
+---
+
+### 3. `POST /alumnos`
+
+Crea un alumno nuevo. El `legajo` se genera automáticamente. El body se valida con la clase `AlumnoModel`.
+
+**Request**
+
+```
+POST https://tp4-api-rest.onrender.com/alumnos
+Content-Type: application/json
+```
+
+```json
+{
+  "nombre": "Test",
+  "apellido": "User",
+  "email": "t.user@facultad.edu.ar"
+}
+```
+
+**Response — 201 Created**
+
+```json
+{
+  "msg": "Se agregó al sistema el alumno nuevo con el legajo n° 10024",
+  "alumnoNuevo": {
+    "legajo": 10024,
+    "nombre": "Test",
+    "apellido": "User",
+    "email": "t.user@facultad.edu.ar",
+    "fechaAlta": "2026-06-01",
+    "modificacion": "2026-06-01",
+    "isActive": true
+  }
+}
+```
+
+**Response — 400 Bad Request** (datos faltantes o inválidos)
+
+```json
+{
+  "errores": ["Nombre inválido", "Email inválido"]
+}
+```
+
+**Response — 409 Conflict** (email ya registrado)
+
+```json
+{
+  "msg": "Ya existe un alumno registrado con el email t.user@facultad.edu.ar"
+}
+```
+
+<!-- 📸 Reemplazar por la captura de Postman -->
+![POST /alumnos](docs/postman/post-alumno.png)
+
+---
+
+### 4. `PUT /alumnos/:legajo`
+
+Modifica los datos de un alumno existente. No se permite modificar el legajo.
+
+**Request**
+
+```
+PUT https://tp4-api-rest.onrender.com/alumnos/10001
+Content-Type: application/json
+```
+
+```json
+{
+  "nombre": "Mora Belén",
+  "isActive": false
+}
+```
+
+**Response — 200 OK**
+
+```json
+{
+  "msg": "Alumno actualizado correctamente",
+  "alumno": {
+    "legajo": 10001,
+    "nombre": "Mora Belén",
+    "apellido": "García",
+    "email": "m.garcia@facultad.edu.ar",
+    "fechaAlta": "2026-03-02",
+    "modificacion": "2026-06-01",
+    "isActive": false
+  }
+}
+```
+
+**Response — 404 Not Found**
+
+```json
+{
+  "msg": "No se encontró el alumno con el legajo n° 99999"
+}
+```
+
+<!-- 📸 Reemplazar por la captura de Postman -->
+![PUT /alumnos/:legajo](docs/postman/put-alumno.png)
+
+---
+
+### 5. `DELETE /alumnos/:legajo`
+
+Elimina un alumno por su legajo.
+
+**Request**
+
+```
+DELETE https://tp4-api-rest.onrender.com/alumnos/10001
+```
+
+**Response — 200 OK**
+
+```json
+{
+  "msg": "Se eliminó correctamente el alumno con el legajo n° 10001",
+  "alumno": {
+    "legajo": 10001,
+    "nombre": "Mora",
+    "apellido": "García",
+    "email": "m.garcia@facultad.edu.ar",
+    "fechaAlta": "2026-03-02",
+    "modificacion": "2026-03-02",
+    "isActive": true
+  }
+}
+```
+
+**Response — 404 Not Found**
+
+```json
+{
+  "msg": "No se encontró el alumno con el legajo n° 99999"
+}
+```
+
+<!-- 📸 Reemplazar por la captura de Postman -->
+![DELETE /alumnos/:legajo](docs/postman/delete-alumno.png)
+
+---
+
+## Tests y cobertura
+
+El proyecto incluye tests automatizados con **Jest** + **ts-jest** y **Supertest**.
+
+```bash
+pnpm test
+```
+
+Se cubre el **100% de las funciones** del proyecto (controlador, server, middleware y modelos), superando el 90% exigido por la consigna.
