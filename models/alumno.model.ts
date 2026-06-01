@@ -41,6 +41,29 @@ export class AlumnoModel extends PersonaModel {
     this.modificacion = fecha
   }
 
+  // Validar datos
+  static validar(data: any): { valido: boolean; errores: string[] } {
+    const errores: string[] = []
+
+    if (!data.legajo || typeof data.legajo !== 'number') {
+      errores.push('Legajo inválido')
+    }
+    if (!data.nombre || typeof data.nombre !== 'string') {
+      errores.push('Nombre inválido')
+    }
+    if (!data.apellido || typeof data.apellido !== 'string') {
+      errores.push('Apellido inválido')
+    }
+    if (!data.email || !data.email.includes('@')) {
+      errores.push('Email inválido')
+    }
+
+    return {
+      valido: errores.length === 0,
+      errores
+    }
+  }
+
   // Polimorfismo
   public override getAllAttributes(): {
     legajo: number
