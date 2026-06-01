@@ -16,27 +16,25 @@ const getAlumnoAll = async (req, res) => {
 }
 
 const getAlumnoById = async (req, res) => {
+  const { legajo } = req.params
+
   try {
     const data = await fs.readFile('./data/alumnos.json', 'utf8')
     const alumnos = JSON.parse(data)
 
-    const { legajo } = req.params
+    const alumno = alumnos.find((a) => a.legajo === Number(legajo))
 
-    const legajoId = alumnos.find(
-      (a) => a.legajo /* .toString() */ === Number(legajo)
-    )
-
-    if (!legajoId) {
+    if (!alumno) {
       return res
         .status(404)
         .json({ msg: `No existe el alumno con el legajo ${legajo}` })
     }
 
-    return res.status(200).json(legajoId)
+    return res.status(200).json(alumno)
   } catch (error) {
     console.log(error)
-    return res.status(500).JSON({
-      error: 'No se pudo obtener el datalle del alumno con legajo n° {legajo}'
+    return res.status(500).json({
+      error: `No se pudo obtener el detalle del alumno con legajo n° ${legajo}`
     })
   }
 }
@@ -48,30 +46,44 @@ const postNewAlumno = async (req, res) => {
     const data = await fs.readFile('./data/alumnos.json', 'utf8')
     const alumnos = JSON.parse(data)
 
-    console.log('Se parseó la infomración a "alumnos"')
+    const nuevoLegajo =
+      alumnos.length > 0
+        ? Math.max(...alumnos.map((alumno) => alumno.legajo)) + 1
+        : 1
 
-    const legajos = alumnos.map((alumno) => alumno.legajo)
-    const nuevoLejago = Math.max(...legajos) + 1
-    console.log(`Nuevo legajo generado: ${nuevoLejago}`)
+    const nuevoAlumno = new AlumnoModel(nombre, apellido, email, nuevoLegajo)
 
-    const nuevoAlumno = new AlumnoModel(nombre, apellido, email, nuevoLejago)
+    const { valido, errores } = AlumnoModel.validar(
+      nuevoAlumno.getAllAttributes()
+    )
+    if (!valido) {
+      return res.status(400).json({ errores })
+    }
 
-    console.log(nuevoAlumno)
+    const emailDuplicado = alumnos.some(
+      (alumno) => alumno.email.toLowerCase() === email.toLowerCase()
+    )
+    if (emailDuplicado) {
+      return res.status(409).json({
+        msg: `Ya existe un alumno registrado con el email ${email}`
+      })
+    }
+
     const alumnoNuevo = nuevoAlumno.getAllAttributes()
     alumnos.push(alumnoNuevo)
-    console.log(nuevoAlumno.getAllAttributes())
 
-      await fs.writeFile(
-    './data/alumnos.json',
-    JSON.stringify(alumnos, null, 2),
-    'utf8'
-)
+    await fs.writeFile(
+      './data/alumnos.json',
+      JSON.stringify(alumnos, null, 2),
+      'utf8'
+    )
 
     return res.status(201).json({
-      msg: `Se agregó al sistema el alumno nuevo con el legajo n° ${nuevoLejago}`,
+      msg: `Se agregó al sistema el alumno nuevo con el legajo n° ${nuevoLegajo}`,
       alumnoNuevo
     })
   } catch (error) {
+    console.log(error)
     return res.status(500).json({
       error: 'No se pudo dar de alta el alumno'
     })
@@ -161,9 +173,9 @@ const deleteAlumnoByLegajo = async (req, res) => {
       alumno: alumnoEncontrado
     })
   } catch (error) {
+    console.log(error)
     return res.status(500).json({
-      err: console.log(error),
-      error: 'No se puedo eliminar el alumno del sistema'
+      error: 'No se pudo eliminar el alumno del sistema'
     })
   }
 }
