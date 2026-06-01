@@ -3,6 +3,9 @@ const {
   validateInputAlumno
 } = require('../middleware/alumno-validator.middleware')
 const {
+  validateInputAlumnoPut
+} = require('../middleware/alumno-validator-put.middleware')
+const {
   getAlumnoAll,
   getAlumnoById,
   postNewAlumno,
@@ -15,7 +18,7 @@ const rutas = Router()
 rutas.get('/', getAlumnoAll)
 rutas.get('/:legajo', getAlumnoById)
 rutas.post('/', validateInputAlumno, postNewAlumno)
-rutas.put('/:legajo', validateInputAlumno, putAlumnoBylegajo)
+rutas.put('/:legajo', validateInputAlumno, validateInputAlumnoPut, putAlumnoBylegajo)
 rutas.delete('/:legajo', deleteAlumnoByLegajo)
 
 module.exports = rutas
