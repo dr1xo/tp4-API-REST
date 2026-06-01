@@ -50,6 +50,16 @@ const postNewAlumno = async (req, res) => {
 
     console.log('Se parseó la infomración a "alumnos"')
 
+    const alumnoExistente = alumnos.find(
+      (alumno) => alumno.email === email
+    )
+
+    if (alumnoExistente) {
+      return res.status(409).json({
+        msg: `Ya existe un alumno registrado con el email ${email}`
+      })
+    }
+
     const legajos = alumnos.map((alumno) => alumno.legajo)
     const nuevoLejago = Math.max(...legajos) + 1
     console.log(`Nuevo legajo generado: ${nuevoLejago}`)
