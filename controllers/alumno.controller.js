@@ -129,14 +129,14 @@ const putAlumnoBylegajo = async (req, res) => {
     )
 
     return res.status(200).json({
-      msg: `Alumno actualizado correctamente`,
+      msg: 'Alumno actualizado correctamente',
       alumno: alumnos[index]
     })
   } catch (error) {
     console.log(error)
 
     return res.status(500).json({
-      error: `No se pudieron modificar los datos del alumno`
+      error: 'No se pudieron modificar los datos del alumno'
     })
   }
 }
